@@ -1,7 +1,7 @@
 {
-  "trace_id": "4ee4deb75aaf48a6a828cf12b20dacab",
-  "traceparent": "00-4ee4deb75aaf48a6a828cf12b20dacab-7a83cc7334434d97-01",
-  "dag_run_id": "it-b3a0a386",
+  "trace_id": "ce248212082943cba6ea78e1ab21a181",
+  "traceparent": "00-ce248212082943cba6ea78e1ab21a181-a236962542054a67-01",
+  "dag_run_id": "it-758a44ad",
   "span_count": 11,
   "span_names": [
     "POST /api/v1/feedback",
@@ -17,7 +17,8 @@
   "services": [
     "lab28-airflow",
     "lab28-api",
-    "lab28-gateway"
+    "lab28-gateway",
+    "lab28-spark"
   ],
   "required_spans_present": [
     "lab28.airflow.dag",

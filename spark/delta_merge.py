@@ -21,11 +21,13 @@ and a span.
 from __future__ import annotations
 
 import logging
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Iterator, Sequence
+from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Any
 
-from opentelemetry.trace import SpanKind
+from opentelemetry.context import Context
+from opentelemetry.trace import Span, SpanKind, Status, StatusCode
 from pyspark.sql import DataFrame, SparkSession
 
 from lab28_platform import metrics
@@ -39,6 +41,7 @@ from lab28_platform.delta_store import (
     merge_sql,
     schema_ddl,
 )
+from lab28_platform.settings import TelemetrySettings
 from lab28_platform.telemetry import (
     SPAN_SPARK_DELTA_MERGE,
     context_from_traceparent,
@@ -46,6 +49,72 @@ from lab28_platform.telemetry import (
 )
 
 logger = logging.getLogger(__name__)
+
+_SPARK_SERVICE = "lab28-spark"
+_spark_provider: Any | None = None
+
+
+@contextmanager
+def _spark_span(
+    name: str,
+    *,
+    kind: SpanKind,
+    parent: Context | None,
+    attributes: dict[str, Any],
+) -> Iterator[Span]:
+    """Emit one span attributed to the ``lab28-spark`` service.
+
+    Spark Connect executes the merge inside the Airflow worker's interpreter,
+    but the lakehouse write is the data-plane boundary the integration contract
+    names, not an Airflow step — so the end-to-end trace should show it as a hop
+    into its own service. The span stays on the caller's trace: ``parent``
+    carries the trace id, only the ``service.name`` resource differs. Falls back
+    to the shared :func:`span` when OTLP export is off (unit tests, laptops).
+    """
+    active = TelemetrySettings.from_env()
+    if not active.enabled:
+        with span(name, kind=kind, parent=parent, attributes=attributes) as inner:
+            yield inner
+        return
+
+    global _spark_provider
+    if _spark_provider is None:
+        from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+        from opentelemetry.sdk.resources import Resource
+        from opentelemetry.sdk.trace import TracerProvider
+        from opentelemetry.sdk.trace.export import BatchSpanProcessor
+        from opentelemetry.sdk.trace.sampling import ParentBased, TraceIdRatioBased
+
+        provider = TracerProvider(
+            resource=Resource.create(
+                {
+                    "service.name": _SPARK_SERVICE,
+                    "service.namespace": "lab28",
+                    "deployment.environment": "lab",
+                }
+            ),
+            sampler=ParentBased(TraceIdRatioBased(active.sample_ratio)),
+        )
+        provider.add_span_processor(
+            BatchSpanProcessor(OTLPSpanExporter(endpoint=active.otlp_endpoint, insecure=True))
+        )
+        _spark_provider = provider
+
+    tracer = _spark_provider.get_tracer(_SPARK_SERVICE)
+    with tracer.start_as_current_span(
+        name, context=parent, kind=kind, attributes=attributes
+    ) as inner:
+        try:
+            yield inner
+        except Exception as error:
+            inner.record_exception(error)
+            inner.set_status(Status(StatusCode.ERROR, str(error)))
+            raise
+        else:
+            inner.set_status(Status(StatusCode.OK))
+        finally:
+            _spark_provider.force_flush()
+
 
 #: The row shaper for each table, keyed the same way as ``TABLE_SCHEMAS`` so a
 #: new table cannot be half-added: declare a schema without a shaper and the
@@ -194,7 +263,7 @@ def merge_events(
     written = {table: len(table_rows) for table, table_rows in rows.items()}
 
     parent = context_from_traceparent(traceparent)
-    with span(
+    with _spark_span(
         SPAN_SPARK_DELTA_MERGE,
         kind=SpanKind.CLIENT,
         parent=parent,

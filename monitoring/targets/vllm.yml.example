@@ -1,0 +1,7 @@
+# Example. Copy to vllm.yml (git-ignored) and set your endpoint.
+# Local GPU compose:
+- targets: ["host.docker.internal:8001"]
+# Remote HTTPS tunnel:
+#- targets: ["YOUR-TUNNEL-HOST:443"]
+#  labels:
+#    __scheme__: https

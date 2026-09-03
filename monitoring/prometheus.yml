@@ -43,5 +43,15 @@ scrape_configs:
     static_configs: [{targets: ["prometheus:9090"]}]
 
   - job_name: lab28-vllm-optional
-    static_configs: [{targets: ["host.docker.internal:8001"]}]
+    # The scrape target for vLLM is written to monitoring/targets/vllm.yml — a
+    # git-ignored file the runbook generates. Local GPU compose points it at
+    # host.docker.internal:8001; a remote Kaggle T4 points it at the tunnel host
+    # with `scheme: https`. Neither the URL nor the choice ever lands in git.
     metrics_path: /metrics
+    # A remote endpoint behind a public tunnel is slower and less reliable than
+    # an in-cluster target; give it a longer interval and timeout so a single
+    # slow scrape does not flap the target on the SLO dashboard.
+    scrape_interval: 15s
+    scrape_timeout: 12s
+    file_sd_configs:
+      - files: ["/etc/prometheus/targets/vllm.yml"]

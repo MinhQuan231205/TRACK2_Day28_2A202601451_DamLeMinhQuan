@@ -297,6 +297,7 @@ services:
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./monitoring/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - ./monitoring/targets:/etc/prometheus/targets:ro
       - prometheus-data:/prometheus
     depends_on:
       - api

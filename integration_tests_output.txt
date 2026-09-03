@@ -1,0 +1,77 @@
+..........................................F............................  [100%]
+================================== FAILURES ===================================
+__________ test_the_gateway_stops_routing_to_a_pod_that_is_not_ready __________
+
+api = <httpx.Client object at 0x000001BB407E85D0>
+gateway = <httpx.Client object at 0x000001BAFD85EDD0>
+
+    @pytest.mark.gpu
+    def test_the_gateway_stops_routing_to_a_pod_that_is_not_ready(
+        api: httpx.Client, gateway: httpx.Client
+    ) -> None:
+        """The 503 has to come from the gateway, not from the app behind it.
+    
+        The two are told apart by the body: the app answers a readiness failure with
+        its own JSON breakdown, while an ejected upstream produces the gateway's own
+        error. This is also the test that catches Envoy's default 50 %
+        ``healthy_panic_threshold`` — with a single upstream host, ejecting it puts
+        the cluster into panic mode and traffic keeps flowing to the unready pod.
+        """
+        _wait_for_status(api, "ready", timeout=180.0)
+    
+        def rejected_by_the_gateway() -> httpx.Response | None:
+            response = gateway.get("/ready")
+            if response.status_code != 503 or "components" in response.text:
+                return None
+            return response
+    
+        with stack.dependency_down(QDRANT_SERVICE):
+            _wait_for_status(api, "not_ready", timeout=120.0)
+>           rejection = stack.wait_until(
+                "the gateway to take the unready pod out of rotation",
+                rejected_by_the_gateway,
+                timeout=120.0,
+                interval=2.0,
+            )
+
+integration-tests\test_j4_degraded_recovery.py:229: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+description = 'the gateway to take the unready pod out of rotation'
+probe = <function test_the_gateway_stops_routing_to_a_pod_that_is_not_ready.<locals>.rejected_by_the_gateway at 0x000001BAFF15EB60>
+timeout = 120.0, interval = 2.0
+
+    def wait_until(
+        description: str,
+        probe: Callable[[], Any],
+        *,
+        timeout: float = 60.0,
+        interval: float = 1.0,
+    ) -> Any:
+        """Poll ``probe`` until it returns something truthy, then return it.
+    
+        An exception from ``probe`` is treated as "not yet" and kept as the failure
+        detail: while a dependency is starting, "ConnectError" *is* the status. Only
+        the deadline turns it into an assertion failure, and the message carries the
+        last thing observed so the report says which boundary never came up.
+        """
+        deadline = time.monotonic() + timeout
+        last = "nothing observed yet"
+        while True:
+            try:
+                result = probe()
+                if result:
+                    return result
+                last = f"probe returned {result!r}"
+            except Exception as error:
+                last = f"{type(error).__name__}: {error}"
+            if time.monotonic() >= deadline:
+>               raise AssertionError(
+                    f"timed out after {timeout:.0f}s waiting for {description} — last seen: {last}"
+                )
+E               AssertionError: timed out after 120s waiting for the gateway to take the unready pod out of rotation — last seen: probe returned None
+
+integration-tests\stack.py:83: AssertionError
+=========================== short test summary info ===========================
+FAILED integration-tests/test_j4_degraded_recovery.py::test_the_gateway_stops_routing_to_a_pod_that_is_not_ready
+1 failed, 70 passed, 1 deselected in 536.14s (0:08:56)

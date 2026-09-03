@@ -4,3 +4,9 @@ __pycache__/
 *.pyc
 .pytest_cache/
 .ruff_cache/
+# local-only vLLM tunnel wiring — never commit the Kaggle URL/token
+vllm.env
+monitoring/targets/vllm.yml
+COMPLETION_PLAN.md
+HUONG_DAN_CHI_TIET.md
+KICH_BAN_DEMO.md
