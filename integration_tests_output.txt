@@ -2,8 +2,8 @@
 ================================== FAILURES ===================================
 __________ test_the_gateway_stops_routing_to_a_pod_that_is_not_ready __________
 
-api = <httpx.Client object at 0x000001BB407E85D0>
-gateway = <httpx.Client object at 0x000001BAFD85EDD0>
+api = <httpx.Client object at 0x00000101204629D0>
+gateway = <httpx.Client object at 0x000001011F27EAD0>
 
     @pytest.mark.gpu
     def test_the_gateway_stops_routing_to_a_pod_that_is_not_ready(
@@ -38,7 +38,7 @@ integration-tests\test_j4_degraded_recovery.py:229:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 description = 'the gateway to take the unready pod out of rotation'
-probe = <function test_the_gateway_stops_routing_to_a_pod_that_is_not_ready.<locals>.rejected_by_the_gateway at 0x000001BAFF15EB60>
+probe = <function test_the_gateway_stops_routing_to_a_pod_that_is_not_ready.<locals>.rejected_by_the_gateway at 0x0000010162220860>
 timeout = 120.0, interval = 2.0
 
     def wait_until(
@@ -74,4 +74,4 @@ E               AssertionError: timed out after 120s waiting for the gateway to 
 integration-tests\stack.py:83: AssertionError
 =========================== short test summary info ===========================
 FAILED integration-tests/test_j4_degraded_recovery.py::test_the_gateway_stops_routing_to_a_pod_that_is_not_ready
-1 failed, 70 passed, 1 deselected in 536.14s (0:08:56)
+1 failed, 70 passed, 1 deselected in 694.65s (0:11:34)

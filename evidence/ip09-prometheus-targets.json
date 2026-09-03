@@ -4,70 +4,70 @@
       "job": "lab28-airflow-batch",
       "url": "http://pushgateway:9091/metrics",
       "health": "up",
-      "last_scrape": "2026-09-03T09:45:01.455007713Z",
+      "last_scrape": "2026-09-03T18:21:46.053756559Z",
       "last_error": ""
     },
     {
       "job": "lab28-api",
       "url": "http://api:8000/metrics",
       "health": "up",
-      "last_scrape": "2026-09-03T09:45:00.479343256Z",
+      "last_scrape": "2026-09-03T18:21:50.077012373Z",
       "last_error": ""
     },
     {
       "job": "lab28-collector",
       "url": "http://otel-collector:8888/metrics",
       "health": "up",
-      "last_scrape": "2026-09-03T09:44:57.63157334Z",
+      "last_scrape": "2026-09-03T18:21:47.230501582Z",
       "last_error": ""
     },
     {
       "job": "lab28-feast",
       "url": "http://feast:8000/metrics",
       "health": "up",
-      "last_scrape": "2026-09-03T09:44:58.273536603Z",
+      "last_scrape": "2026-09-03T18:21:47.871872044Z",
       "last_error": ""
     },
     {
       "job": "lab28-gateway",
       "url": "http://gateway:9901/stats/prometheus",
       "health": "up",
-      "last_scrape": "2026-09-03T09:44:59.71048283Z",
+      "last_scrape": "2026-09-03T18:21:49.307804651Z",
       "last_error": ""
     },
     {
       "job": "lab28-kafka",
       "url": "http://kafka-exporter:9308/metrics",
       "health": "up",
-      "last_scrape": "2026-09-03T09:45:00.824636512Z",
+      "last_scrape": "2026-09-03T18:21:50.42328759Z",
       "last_error": ""
     },
     {
       "job": "lab28-mlflow",
       "url": "http://api:8000/metrics",
       "health": "up",
-      "last_scrape": "2026-09-03T09:45:00.92231685Z",
+      "last_scrape": "2026-09-03T18:21:50.521709365Z",
       "last_error": ""
     },
     {
       "job": "lab28-prometheus",
       "url": "http://prometheus:9090/metrics",
       "health": "up",
-      "last_scrape": "2026-09-03T09:45:01.938515543Z",
+      "last_scrape": "2026-09-03T18:21:46.583273772Z",
       "last_error": ""
     },
     {
       "job": "lab28-qdrant",
       "url": "http://qdrant:6333/metrics",
       "health": "up",
-      "last_scrape": "2026-09-03T09:44:57.795673166Z",
+      "last_scrape": "2026-09-03T18:21:47.393963134Z",
       "last_error": ""
     },
     {
       "job": "lab28-vllm-optional",
       "url": "https://vllm-endpoint.redacted:443/metrics",
       "health": "up",
-      "last_scrape": "2026-09-03T09:44:53.633610319Z",
+      "last_scrape": "2026-09-03T18:21:43.426597979Z",
       "last_error": ""
     }
   ],

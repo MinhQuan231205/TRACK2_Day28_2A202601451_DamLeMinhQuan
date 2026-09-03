@@ -30,7 +30,7 @@
       "name": "Pipeline → Delta Lake / Lakehouse",
       "owner": "team-data",
       "status": "ready",
-      "detail": "documents v16 (25 rows), feedback v30 (42 rows)",
+      "detail": "documents v28 (33 rows), feedback v58 (66 rows)",
       "readiness_check": "reliability.delta_transaction_log"
     },
     {
@@ -46,7 +46,7 @@
       "name": "Data → Vector Store (embeddings)",
       "owner": "team-serving",
       "status": "ready",
-      "detail": "25 points; ok",
+      "detail": "33 points; ok",
       "readiness_check": "reliability.vector_store"
     },
     {
@@ -54,7 +54,7 @@
       "name": "MLflow → Model Registry",
       "owner": "team-data",
       "status": "ready",
-      "detail": "lab28-rag-release v10 is champion",
+      "detail": "lab28-rag-release v21 is champion",
       "readiness_check": "operations.model_rollback"
     },
     {
